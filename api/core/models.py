@@ -14,7 +14,6 @@ class Post(models.Model):
     h1 = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
     slug = models.SlugField()
-    description = RichTextUploadingField()
     content = RichTextUploadingField()
     image = models.ImageField(upload_to=get_uploud_path)
     created_at = models.DateField(default=timezone.now)
