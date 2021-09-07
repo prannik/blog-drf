@@ -10,6 +10,7 @@ def get_uploud_path(instance, filename):
     filename = instance.slug + '.' + filename.split('.')[1]
     return os.path.join('', filename)
 
+
 class Post(models.Model):
     h1 = models.CharField(max_length=200)
     title = models.CharField(max_length=200)
@@ -23,9 +24,16 @@ class Post(models.Model):
     def __str__(self):
         return f'{self.h1}'
 
+
 class Comment(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
-    username = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_name')
+    post = models.ForeignKey(
+        Post, on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    username = models.ForeignKey(
+        User, on_delete=models.CASCADE,
+        related_name='user_name'
+    )
     text = models.TextField()
     created_date = models.DateTimeField(default=timezone.now)
 

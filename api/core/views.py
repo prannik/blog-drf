@@ -1,8 +1,8 @@
 from rest_framework import viewsets, permissions, pagination, generics, filters
 from rest_framework.views import APIView
 from .models import Post, Comment
-from .serialzers import PostSerializer, TagSerializer, ContactSerailizer, RegisterSerializer, \
-    UserSerializer, CommentSerializer
+from .serialzers import PostSerializer, TagSerializer, ContactSerailizer, \
+    RegisterSerializer, UserSerializer, CommentSerializer
 from taggit.models import Tag
 from django.core.mail import send_mail
 from rest_framework.response import Response
@@ -59,7 +59,10 @@ class FeedBackView(APIView):
             from_email = data.get('email')
             subject = data.get('subject')
             message = data.get('message')
-            send_mail(f'От {name} | {subject}', message, from_email, ['amromashov@gmail.com'])
+            send_mail(
+                f'От {name} | {subject}', message,
+                from_email, ['prannik.m@gmail.com']
+            )
             return Response({"success": "Sent"})
 
 
@@ -72,7 +75,9 @@ class RegisterView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         return Response({
-            "user": UserSerializer(user, context=self.get_serializer_context()).data,
+            "user": UserSerializer(
+                user,
+                context=self.get_serializer_context()).data,
             "message": "Пользователь успешно создан",
         })
 
@@ -83,7 +88,9 @@ class ProfileView(generics.GenericAPIView):
 
     def get(self, request, *args,  **kwargs):
         return Response({
-            "user": UserSerializer(request.user, context=self.get_serializer_context()).data,
+            "user": UserSerializer(
+                request.user,
+                context=self.get_serializer_context()).data,
         })
 
 
@@ -93,6 +100,5 @@ class CommentView(generics.ListCreateAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        post_slug = self.kwargs['post_slug'].lower()
-        post = Post.objects.get(slug=post_slug)
+        post = Post.objects.get(slug=self.post_slug)
         return Comment.objects.filter(post=post)
