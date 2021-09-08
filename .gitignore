@@ -4,4 +4,4 @@ __pycache__/
 migrations/
 media
 db.sqlite3
-!/api/api/.env
+/api/api/.env
