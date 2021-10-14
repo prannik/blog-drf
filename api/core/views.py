@@ -1,11 +1,12 @@
-from rest_framework import viewsets, permissions, pagination, generics, filters
-from rest_framework.views import APIView
-from .models import Post, Comment
-from .serialzers import PostSerializer, TagSerializer, ContactSerailizer, \
-    RegisterSerializer, UserSerializer, CommentSerializer
-from taggit.models import Tag
 from django.core.mail import send_mail
+
+from rest_framework import filters, generics, pagination, permissions, viewsets
 from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from taggit.models import Tag
+
+from . import models, serialzers
 
 
 class PageNumberSetPagination(pagination.PageNumberPagination):
@@ -17,42 +18,42 @@ class PageNumberSetPagination(pagination.PageNumberPagination):
 class PostViewSet(viewsets.ModelViewSet):
     search_fields = ['content', 'h1']
     filter_backends = (filters.SearchFilter,)
-    serializer_class = PostSerializer
-    queryset = Post.objects.all()
+    serializer_class = serialzers.PostSerializer
+    queryset = models.Post.objects.all()
     lookup_field = 'slug'
     permission_classes = [permissions.AllowAny]
     pagination_class = PageNumberSetPagination
 
 
 class TagDetailView(generics.ListAPIView):
-    serializer_class = PostSerializer
+    serializer_class = serialzers.PostSerializer
     pagination_class = PageNumberSetPagination
     permission_classes = [permissions.AllowAny]
 
     def get_queryset(self):
         tag_slug = self.kwargs['tag_slug'].lower()
         tag = Tag.objects.get(slug=tag_slug)
-        return Post.objects.filter(tags=tag)
+        return models.Post.objects.filter(tags=tag)
 
 
 class TagView(generics.ListAPIView):
     queryset = Tag.objects.all()
-    serializer_class = TagSerializer
+    serializer_class = serialzers.TagSerializer
     permission_classes = [permissions.AllowAny]
 
 
 class AsideView(generics.ListAPIView):
-    queryset = Post.objects.all().order_by('-id')[:5]
-    serializer_class = PostSerializer
+    queryset = models.Post.objects.all().order_by('-id')[:5]
+    serializer_class = serialzers.PostSerializer
     permission_classes = [permissions.AllowAny]
 
 
 class FeedBackView(APIView):
     permission_classes = [permissions.AllowAny]
-    serializer_class = ContactSerailizer
+    serializer_class = serialzers.ContactSerailizer
 
-    def post(self, request, *args, **kwargs):
-        serializer_class = ContactSerailizer(data=request.data)
+    def post(self, request,):
+        serializer_class = serialzers.ContactSerailizer(data=request.data)
         if serializer_class.is_valid():
             data = serializer_class.validated_data
             name = data.get('name')
@@ -68,14 +69,15 @@ class FeedBackView(APIView):
 
 class RegisterView(generics.GenericAPIView):
     permission_classes = [permissions.AllowAny]
-    serializer_class = RegisterSerializer
+    serializer_class = serialzers.RegisterSerializer
 
-    def post(self, request, *args,  **kwargs):
+    def post(self, request):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
+
         return Response({
-            "user": UserSerializer(
+            "user": serialzers.UserSerializer(
                 user,
                 context=self.get_serializer_context()).data,
             "message": "Пользователь успешно создан",
@@ -84,21 +86,22 @@ class RegisterView(generics.GenericAPIView):
 
 class ProfileView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
-    serializer_class = UserSerializer
+    serializer_class = serialzers.UserSerializer
 
-    def get(self, request, *args,  **kwargs):
+    def get(self, request):
         return Response({
-            "user": UserSerializer(
+            "user": serialzers.UserSerializer(
                 request.user,
                 context=self.get_serializer_context()).data,
         })
 
 
 class CommentView(generics.ListCreateAPIView):
-    queryset = Comment.objects.all()
-    serializer_class = CommentSerializer
+    queryset = models.Comment.objects.all()
+    serializer_class = serialzers.CommentSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        post = Post.objects.get(slug=self.post_slug)
-        return Comment.objects.filter(post=post)
+        post_slug = self.kwargs['post_slug'].lower()
+        post = models.Post.objects.get(slug=post_slug)
+        return models.Comment.objects.filter(post=post)

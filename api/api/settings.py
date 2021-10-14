@@ -1,8 +1,8 @@
 import os
-import environ
-from pathlib import Path
 from datetime import timedelta
+from pathlib import Path
 
+import environ
 
 env = environ.Env()
 environ.Env.read_env()
@@ -88,10 +88,22 @@ TEMPLATES = [
 WSGI_APPLICATION = 'api.wsgi.application'
 
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'test-blog-drf',
+        'USER': 'maksim',
+        'PASSWORD': 'zadnica_25',
+        'HOST': 'localhost',
+        'PORT': '5432',
+
     }
 }
 
@@ -132,7 +144,6 @@ STATIC_URL = '/static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-CKEDITOR_UPLOAD_PATH = "uploads/"
 
 CKEDITOR_JQUERY_URL = 'https://ajax.googleapis.com/ajax/libs/jquery/2.2.4/jquery.min.js'
 
