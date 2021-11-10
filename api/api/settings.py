@@ -92,15 +92,15 @@ WSGI_APPLICATION = 'api.wsgi.application'
 #     'default': {
 #         'ENGINE': 'django.db.backends.sqlite3',
 #         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
+#     }пше згыр
 # }
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'test-blog-drf',
-        'USER': 'maksim',
-        'PASSWORD': 'zadnica_25',
+        'NAME': env('NAME_DB'),
+        'USER': env('USER_DB'),
+        'PASSWORD': env('PASSWORD_DB'),
         'HOST': 'localhost',
         'PORT': '5432',
 
